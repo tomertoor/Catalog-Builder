@@ -1,4 +1,4 @@
-#Catalog builder
+**Catalog builder**
 
-##Dependencies:
+Dependencies:
 1) Att&ck Python Utilities: `pip install mitreattack-python`

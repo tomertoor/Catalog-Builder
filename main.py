@@ -3,10 +3,9 @@ import mitreattack.attackToExcel.stixToDf as stixToDf
 
 # download and parse ATT&CK STIX data
 data = attackToExcel.get_stix_data("enterprise-attack")
-# get Pandas DataFrames for techniques, associated relationships, and citations
+# get Pandas DataFrames for techniques
 techniques_data = stixToDf.techniquesToDf(data, "enterprise-attack") 
 
-# show T1102 and sub-techniques of T1102
 techniques_df = techniques_data["techniques"]
 
 print("Tactics list: \n", stixToDf.tacticsToDf(data)["tactics"].sort_values("ID"))

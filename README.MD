@@ -7,6 +7,7 @@ Dependencies:
 
 Example output (this is the output of a single sub-technique of a single technique of a signle tactic):
 
+```
 {
   'TA0009': {
     'name': 'Collection',
@@ -33,3 +34,4 @@ Example output (this is the output of a single sub-technique of a single techniq
     }
   }
 }
+```

@@ -5,7 +5,7 @@ This tool outputs a JSON file or string representing the MITRE ATT&CK enterprise
 Dependencies:
 1) Att&ck Python Utilities: `pip install mitreattack-python`
 
-Example output (this is the output of a single sub-technique of a single technique of a signle tactic):
+Example output (this is a single sub-technique of a single technique of a single tactic):
 
 ```
 {

@@ -27,41 +27,50 @@ def parse_df(t):
         
     return r
 
+def main():
 
-# download and parse ATT&CK STIX data
-data = attackToExcel.get_stix_data("enterprise-attack")
+    filename = input("enter filename to save to or \'.\' if you dont want to save: ")
 
-# get Pandas DataFrames for tactics & techniques
-tactics_df = stixToDf.tacticsToDf(data)["tactics"]
-techniques_df = stixToDf.techniquesToDf(data, "enterprise-attack")["techniques"]
+    # download and parse ATT&CK STIX data
+    data = attackToExcel.get_stix_data("enterprise-attack")
 
-# parsing tactics techniques and suntechniques
-p_tactics: json = parse_df(tactics_df[["ID", "name", "created", "last modified", "version"]])
-p_techniques: json = parse_df(techniques_df.loc[techniques_df["is sub-technique"] == False][["ID", "name", "created", "last modified", "version", "tactics"]])
-p_sub: json = parse_df(techniques_df.loc[techniques_df["is sub-technique"] == True][["ID", "name", "created", "last modified", "version", "sub-technique of"]])
+    # get Pandas DataFrames for tactics & techniques
+    tactics_df = stixToDf.tacticsToDf(data)["tactics"]
+    techniques_df = stixToDf.techniquesToDf(data, "enterprise-attack")["techniques"]
 
-# attach subtechniques to techniques
-for technique in p_techniques:
-    subtechniques_json = {}
-    subtechniques_list = []
+    # parsing tactics techniques and suntechniques
+    p_tactics: json = parse_df(tactics_df[["ID", "name", "created", "last modified", "version"]])
+    p_techniques: json = parse_df(techniques_df.loc[techniques_df["is sub-technique"] == False][["ID", "name", "created", "last modified", "version", "tactics"]])
+    p_sub: json = parse_df(techniques_df.loc[techniques_df["is sub-technique"] == True][["ID", "name", "created", "last modified", "version", "sub-technique of"]])
 
-    for i in p_sub:
-        if p_sub[i]["sub-technique of"] == str(technique):
-            subtechniques_json[i] = p_sub[i]
-    
-    p_techniques[technique]["sub-techniques"] = subtechniques_json
+    # attach subtechniques to techniques
+    for technique in p_techniques:
+        subtechniques_json = {}
+        subtechniques_list = []
 
-
-# attach techniques to tactics
-for tactic in p_tactics:
-    techniques_json = {}
-    techniques_list = []
-
-    for i in p_techniques:
-        if p_tactics[tactic]["name"] in p_techniques[i]["tactics"]:
-            techniques_json[i] = p_techniques[i]
-
-    p_tactics[tactic]["techniques"] = techniques_json
+        for i in p_sub:
+            if p_sub[i]["sub-technique of"] == str(technique):
+                subtechniques_json[i] = p_sub[i]
+        
+        p_techniques[technique]["sub-techniques"] = subtechniques_json
 
 
-print(p_tactics)
+    # attach techniques to tactics
+    for tactic in p_tactics:
+        techniques_json = {}
+        techniques_list = []
+
+        for i in p_techniques:
+            if p_tactics[tactic]["name"] in p_techniques[i]["tactics"]:
+                techniques_json[i] = p_techniques[i]
+
+        p_tactics[tactic]["techniques"] = techniques_json
+
+    if filename == '.':
+        print(json.dumps(p_tactics))
+    else:
+        f = open(filename, "w")
+        f.write(json.dumps(p_tactics))
+
+if __name__ == '__main__':
+    main()

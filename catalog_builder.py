@@ -44,17 +44,21 @@ def parse_df(t):
                 # transform field names
                 if field == "last modified":
                     row_json["last_modified"] = j[field][row]
-                elif field == "sub-technique of":
-                    row_json["sub_technique_of"] = j[field][row]
                 else:
                     row_json[field] = j[field][row]
 
-
         row_json["name"] = row_json["name"].split(": ")[-1]
-        
+
+        if "TA" in j["ID"][row]:
+            row_json["type"] = "tactic"
+        elif '.' in j["ID"][row]:
+            row_json["type"] = "sub-technique"
+        else:
+            row_json["type"] = "technique"
+
         # adding the tactic to r with the tactic ID as the key
         r[j["ID"][row] + '-' + j["name"][row].split(": ")[-1]] = row_json
-        
+
     return r
 
 def main():
@@ -78,11 +82,10 @@ def main():
 
     # parsing tactics techniques and suntechniques
     p_tactics: json = parse_df(tactics_df[["ID", "name", "created", "last modified", "version"]])
-    p_techniques: json = parse_df(techniques_df.loc[techniques_df["is sub-technique"] == False][["ID", "name", "created", "last modified", "version", "tactics"]])
-    p_sub: json = parse_df(techniques_df.loc[techniques_df["is sub-technique"] == True][["ID", "name", "created", "last modified", "version", "sub-technique of"]])
+    p_techniques: json = parse_df(techniques_df[["ID", "name", "created", "last modified", "version"]])
 
     # merging the jsons
-    final_json = {**p_tactics, **p_techniques, **p_sub}
+    final_json = {**p_tactics, **p_techniques}
 
     if filename == "-":
         print(json.dumps(final_json))

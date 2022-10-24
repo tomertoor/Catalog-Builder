@@ -2,7 +2,7 @@
 
 This tool outputs a JSON file or string representing the MITRE ATT&CK enterprise STIX matrix
 
-USAGE:
+```USAGE:
     catalog_builder.py
         run the program normally (in-program prompt)
 
@@ -14,6 +14,7 @@ USAGE:
 
     catalog_builder.py <filename>
         save the json to filename
+```
 
 Dependencies:
 1) Att&ck Python Utilities: `pip install mitreattack-python`

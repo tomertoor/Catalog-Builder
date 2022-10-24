@@ -23,7 +23,7 @@ def parse_df(t):
                 row_json[field] = j[field][row]
         
         # adding the tactic to r with the tactic ID as the key
-        r[j["ID"][row]] = row_json
+        r[j["ID"][row] + '-' + j["name"][row].split(": ")[-1]] = row_json
         
     return r
 
@@ -43,34 +43,14 @@ def main():
     p_techniques: json = parse_df(techniques_df.loc[techniques_df["is sub-technique"] == False][["ID", "name", "created", "last modified", "version", "tactics"]])
     p_sub: json = parse_df(techniques_df.loc[techniques_df["is sub-technique"] == True][["ID", "name", "created", "last modified", "version", "sub-technique of"]])
 
-    # attach subtechniques to techniques
-    for technique in p_techniques:
-        subtechniques_json = {}
-        subtechniques_list = []
-
-        for i in p_sub:
-            if p_sub[i]["sub-technique of"] == str(technique):
-                subtechniques_json[i] = p_sub[i]
-        
-        p_techniques[technique]["sub-techniques"] = subtechniques_json
-
-
-    # attach techniques to tactics
-    for tactic in p_tactics:
-        techniques_json = {}
-        techniques_list = []
-
-        for i in p_techniques:
-            if p_tactics[tactic]["name"] in p_techniques[i]["tactics"]:
-                techniques_json[i] = p_techniques[i]
-
-        p_tactics[tactic]["techniques"] = techniques_json
+    # merging the jsons
+    final_json = {**p_tactics, **p_techniques, **p_sub}
 
     if filename == '.':
-        print(json.dumps(p_tactics))
+        print(json.dumps(final_json))
     else:
         f = open(filename, "w")
-        f.write(json.dumps(p_tactics))
+        f.write(json.dumps(final_json))
 
 if __name__ == '__main__':
     main()

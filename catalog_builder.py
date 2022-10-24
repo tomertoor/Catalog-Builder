@@ -1,8 +1,28 @@
 from os import P_ALL
+import sys
+from tabnanny import verbose
 import mitreattack.attackToExcel.attackToExcel as attackToExcel
 import mitreattack.attackToExcel.stixToDf as stixToDf
 import json
 
+helpstr = """
+USAGE:
+    catalog_builder.py
+        run the program normally (in-program prompt)
+
+    catalog_builder.py -h or --help
+        help
+
+    catalog_builder.py -p or --print
+        print the JSON
+
+    catalog_builder.py <filename>
+        save the json to filename
+"""
+
+def help():
+    print(helpstr)
+    return
 
 def parse_df(t):
     
@@ -38,8 +58,16 @@ def parse_df(t):
     return r
 
 def main():
-
-    filename = input("enter filename to save to or \'.\' if you dont want to save: ")
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "-h" or sys.argv[1] == "--help":
+            help()
+            return
+        elif sys.argv[1] == "-p" or sys.argv[1] == "--print":
+            filename = '-'
+        else:
+            filename = sys.argv[1]
+    else:
+        filename = input("enter filename to save to or \'-\' if you dont want to save: ")
 
     # download and parse ATT&CK STIX data
     data = attackToExcel.get_stix_data("enterprise-attack")
@@ -56,11 +84,12 @@ def main():
     # merging the jsons
     final_json = {**p_tactics, **p_techniques, **p_sub}
 
-    if filename == '.':
+    if filename == "-":
         print(json.dumps(final_json))
     else:
         f = open(filename, "w")
         f.write(json.dumps(final_json))
+        print("done!")
 
 if __name__ == '__main__':
     main()

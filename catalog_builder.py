@@ -87,11 +87,13 @@ def main():
     # merging the jsons
     final_json = {**p_tactics, **p_techniques}
 
+    final_list = [{i: final_json[i]} for i in final_json]
+
     if filename == "-":
-        print(json.dumps(final_json))
+        print(final_list)
     else:
         f = open(filename, "w")
-        f.write(json.dumps(final_json))
+        f.write(final_list)
         print("done!")
 
 if __name__ == '__main__':

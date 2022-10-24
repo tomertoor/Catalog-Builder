@@ -20,7 +20,17 @@ def parse_df(t):
 
         for field in j:
             if field != "ID":
-                row_json[field] = j[field][row]
+
+                # transform field names
+                if field == "last modified":
+                    row_json["last_modified"] = j[field][row]
+                elif field == "sub-technique of":
+                    row_json["sub_technique_of"] = j[field][row]
+                else:
+                    row_json[field] = j[field][row]
+
+
+        row_json["name"] = row_json["name"].split(": ")[-1]
         
         # adding the tactic to r with the tactic ID as the key
         r[j["ID"][row] + '-' + j["name"][row].split(": ")[-1]] = row_json

@@ -23,27 +23,33 @@ Dependencies:
 Example output (this is a single sub-technique a single technique and a single tactic):
 
 ```
-{
-  "TA0009-Collection": {
-    "name": "Collection",
-    "created": "17 October 2018",
-    "last_modified": "19 July 2019",
-    "version": "1.0",
-    "type": "tactic"
+[
+  {
+    'TA0009-Collection': {
+      'name': 'Collection',
+      'created': '17 October 2018',
+      'last_modified': '19 July 2019',
+      'version': '1.0',
+      'type': 'tactic'
+    }
   },
-  "T1548-Abuse Elevation Control Mechanism": {
-    "name": "Abuse Elevation Control Mechanism",
-    "created": "30 January 2020",
-    "last_modified": "21 March 2022",
-    "version": "1.0",
-    "type": "technique"
+  {
+    'T1548-Abuse Elevation Control Mechanism': {
+      'name': 'Abuse Elevation Control Mechanism',
+      'created': '30 January 2020',
+      'last_modified': '21 March 2022',
+      'version': '1.0',
+      'type': 'technique'
+    }
   },
-  "T1548.002-Bypass User Account Control": {
-    "name": "Bypass User Account Control",
-    "created": "30 January 2020",
-    "last_modified": "19 April 2022",
-    "version": "2.0",
-    "type": "sub-technique"
+  {
+    'T1548.002-Bypass User Account Control': {
+      'name': 'Bypass User Account Control',
+      'created': '30 January 2020',
+      'last_modified': '19 April 2022',
+      'version': '2.0',
+      'type': 'sub-technique'
+    }
   }
-}
+]
 ```

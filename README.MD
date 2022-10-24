@@ -2,7 +2,8 @@
 
 This tool outputs a JSON file or string representing the MITRE ATT&CK enterprise STIX matrix
 
-```USAGE:
+```
+USAGE:
     catalog_builder.py
         run the program normally (in-program prompt)
 

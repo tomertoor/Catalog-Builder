@@ -93,7 +93,7 @@ def main():
         print(final_list)
     else:
         f = open(filename, "w")
-        f.write(final_list)
+        f.write(str(final_list))
         print("done!")
 
 if __name__ == '__main__':

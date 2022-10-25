@@ -1,9 +1,12 @@
-from os import P_ALL
+# from os import P_ALL
 import sys
 from tabnanny import verbose
-import mitreattack.attackToExcel.attackToExcel as attackToExcel
-import mitreattack.attackToExcel.stixToDf as stixToDf
+# import mitreattack.attackToExcel.attackToExcel as attackToExcel
+# import mitreattack.attackToExcel.stixToDf as stixToDf
 import json
+from urllib.request import urlopen
+
+JSON_URL = "https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json"
 
 helpstr = """
 USAGE:
@@ -24,77 +27,60 @@ def help():
     print(helpstr)
     return
 
-def parse_df(t):
-    
+def parse_json(t):
     # this is the json we will return
-    r: json = {}
-
+    r = []
     # for each tactic
-    for row in t.index:
-        row = str(row)
-
-        j: json = json.loads(t.to_json())
-        
-        # this is the json for the tactic in the format we want
-        row_json: json = {}
-
-        for field in j:
-            if field != "ID":
-
-                # transform field names
-                if field == "last modified":
-                    row_json["last_modified"] = j[field][row]
-                else:
-                    row_json[field] = j[field][row]
-
-        row_json["name"] = row_json["name"].split(": ")[-1]
-
-        if "TA" in j["ID"][row]:
-            row_json["type"] = "tactic"
-        elif '.' in j["ID"][row]:
-            row_json["type"] = "sub-technique"
-        else:
-            row_json["type"] = "technique"
-
-        # adding the tactic to r with the tactic ID as the key
-        r[j["ID"][row] + '-' + j["name"][row].split(": ")[-1]] = row_json
-
+    for element in t:
+        if element["type"] == "x-mitre-tactic" or element["type"] == "attack-pattern":
+            #type -> url
+            #id -> external-referances->external-id
+            #name -> name
+            #created -> created
+            #last modified -> modified
+            #depricated -> x_mitre_depracated
+            #version -> x_mitre_version
+            if element["type"] == "x-mitre-tactic":
+                type = "tactic"
+            elif element["type"] == "attack-pattern":
+                try:
+                    if element["x_mitre_is_subtechnique"]:
+                        type = "sub_technique"
+                    else:
+                        type = "technique"
+                except:
+                    type = "technique"
+            
+            a = f'{element["external_references"][0]["external_id"]}-{element["name"]}'
+            j : json = {}
+            try:
+                d = element["x_mitre_deprecated"]
+            except:
+                d = False
+            data = {"name":element["name"], "created":element["created"], "last_modified":element["modified"], 
+            "version":element["x_mitre_version"], "type":type, "deprecated":d}
+            j[a] = data
+            r.append(j)
     return r
 
 def main():
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "-h" or sys.argv[1] == "--help":
-            help()
-            return
-        elif sys.argv[1] == "-p" or sys.argv[1] == "--print":
-            filename = '-'
-        else:
-            filename = sys.argv[1]
-    else:
-        filename = input("enter filename to save to or \'-\' if you dont want to save: ")
-
     # download and parse ATT&CK STIX data
-    data = attackToExcel.get_stix_data("enterprise-attack")
+    # data = attackToExcel.get_stix_data("enterprise-attack")
 
-    # get Pandas DataFrames for tactics & techniques
-    tactics_df = stixToDf.tacticsToDf(data)["tactics"]
-    techniques_df = stixToDf.techniquesToDf(data, "enterprise-attack")["techniques"]
 
-    # parsing tactics techniques and suntechniques
-    p_tactics: json = parse_df(tactics_df[["ID", "name", "created", "last modified", "version"]])
-    p_techniques: json = parse_df(techniques_df[["ID", "name", "created", "last modified", "version"]])
 
-    # merging the jsons
-    final_json = {**p_tactics, **p_techniques}
+    res = urlopen(JSON_URL)
+    data = json.loads(res.read())
 
-    final_list = [{i: final_json[i]} for i in final_json]
 
-    if filename == "-":
-        print(final_list)
-    else:
-        f = open(filename, "w")
-        f.write(str(final_list))
-        print("done!")
+    data = json.dumps(parse_json(data["objects"]))
+
+    f = open("result.json", "w")
+    f.write(str(data))
+    print("done!")
 
 if __name__ == '__main__':
     main()
+
+
+
